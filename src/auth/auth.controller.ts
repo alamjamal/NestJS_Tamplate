@@ -9,6 +9,7 @@ import { RequestType } from 'src/common/type/Request';
 import { Request as ExpressRequest } from 'express';
 import { UserDto } from 'src/user/dto/user-dto';
 import { JwtAuthGuard } from 'src/auth-guard/guards/auth.guard';
+import { PassportJwtGuard } from 'src/auth-guard/guards/jwt.guard';
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
@@ -54,7 +55,8 @@ export class AuthController {
         return this.authService.logout(dto.refreshToken);
     }
 
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
+    @UseGuards(PassportJwtGuard)
     @Get('/me')
     getCurrentUser(@Request() request: ExpressRequest) {
         return request.user as RequestType;
