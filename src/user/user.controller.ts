@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -15,8 +15,10 @@ import { UserIdDto } from 'src/common/dto/user-id.dto';
 import { ErrorResponseDto } from 'src/common/dto/error-response.dto';
 import { NotFoundResponseDto } from 'src/common/dto/notfound-response.dto';
 import { UserDto } from './dto/user-dto';
+import { JwtAuthGuard } from 'src/auth-guard/guards/auth.guard';
 
 @Controller('User')
+@UseGuards(JwtAuthGuard)
 @ApiTags('User')
 export class UserController {
     constructor(private readonly userService: UserService) {}

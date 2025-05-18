@@ -4,7 +4,6 @@ import { UserRole } from 'src/common/enums/UserRole';
 
 // import { DataTypes } from 'sequelize';  // Core ORM (Model Definitions, Queries)
 
-
 @Table({
     timestamps: true,
     tableName: 'Users',
