@@ -16,9 +16,11 @@ import { ErrorResponseDto } from 'src/common/dto/error-response.dto';
 import { NotFoundResponseDto } from 'src/common/dto/notfound-response.dto';
 import { UserDto } from './dto/user-dto';
 import { JwtAuthGuard } from 'src/auth-guard/guards/auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('User')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
+@UseGuards(AuthGuard('jwt'))
 @ApiTags('User')
 export class UserController {
     constructor(private readonly userService: UserService) {}
