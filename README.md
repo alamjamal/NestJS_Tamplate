@@ -25,6 +25,22 @@
 
 This repository contains a production-ready boilerplate for a NestJS application. It includes essential features for building scalable and maintainable APIs, such as user CRUD operations, Sequelize ORM for database access, and production-grade configurations.
 
+## Todo
+
+| Feature                | Status       |
+| ---------------------- | ------------ |
+| USER CRUD API          | ✅ Completed |
+| Global Error Handler   | ✅ Completed |
+| NotFound Interceptor   | ✅ Completed |
+| Validation Reformatted | ✅ Completed |
+| JWT Core Auth Module   | ✅ Completed |
+| Passport JWT           | ✅ Completed |
+| Logger                 | 🚧 Progress  |
+| Redis Cache            | ⏳ Pending   |
+| Black List Token       | ⏳ Pending   |
+| Fast2SMS OTP           | ⏳ Pending   |
+| Docker                 | ⏳ Pending   |
+
 ## Features
 
 - **User CRUD Operations**: Basic User CRUD operations implemented using Sequelize ORM.
