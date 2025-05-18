@@ -2,7 +2,7 @@ import { Body, Controller, Post, UseGuards, Get, Request } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
-import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { ErrorResponseDto } from 'src/common/dto/error-response.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RequestType } from 'src/common/type/Request';
@@ -55,8 +55,9 @@ export class AuthController {
         return this.authService.logout(dto.refreshToken);
     }
 
-    // @UseGuards(JwtAuthGuard)
-    @UseGuards(PassportJwtGuard)
+    @UseGuards(JwtAuthGuard)
+    // @UseGuards(PassportJwtGuard)
+    @ApiBearerAuth()
     @Get('/me')
     getCurrentUser(@Request() request: ExpressRequest) {
         return request.user as RequestType;

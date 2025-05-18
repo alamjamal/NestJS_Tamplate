@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
     ApiBadRequestResponse,
+    ApiBearerAuth,
     ApiBody,
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
@@ -20,6 +21,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('User')
 // @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
 @ApiTags('User')
 export class UserController {

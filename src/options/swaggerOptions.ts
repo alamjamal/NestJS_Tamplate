@@ -7,7 +7,7 @@ export default function setupSwagger(app: INestApplication) {
         .setDescription('The NestJS API description')
         .setExternalDoc('Postman Collection', '/docs-json')
         .setVersion('1.0')
-        .addBearerAuth()
+        .addBearerAuth() // This name here is important for matching up with @ApiBearerAuth() in your controller!)
         // .addTag('users', 'Users related endpoints')
         // .addTag('auth', 'Authentication related endpoints')
         // .addTag('products', 'Products related endpoints')
