@@ -1,6 +1,6 @@
 // src/otp/dto/otp.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsJWT, IsNotEmpty, IsString, Length, Matches } from 'class-validator';
+import { IsDate, IsJWT, IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 
 export class OtpDto {
     @ApiProperty({
@@ -34,6 +34,8 @@ export class OtpDto {
         example: new Date().toISOString(),
         description: 'When this OTP expires'
     })
+    @IsDate()
+    @IsNotEmpty()
     declare expiresAt: Date;
 
     @ApiProperty({
@@ -43,8 +45,7 @@ export class OtpDto {
     declare isUsed: boolean;
 
     @ApiProperty({
-        example:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlZDEyZTJkYi0zNDM0LTRlYjQtYmZlNC03OTM4NGFlNDViY2MiLCJtb2JpbGUiOiI3NDE2ODE1MTcxIiwicm9sZSI6InJlYWQiLCJsb2dpbldpdGgiOiJvdHAiLCJ1aWQiOiJlZDEyZTJkYi0zNDM0LTRlYjQtYmZlNC03OTM4NGFlNDViY2MiLCJpYXQiOjE3NDczMjM1ODcsImV4cCI6MTc0NzkyODM4N30.gn8PrprqjFoGK4qPT-yNNzv5q_1nYVi9QrzA91IEckE',
+        example: 'dfsfgsdgdfg.gn8PrprqjFoGK4qPT-yNNzv5q_1nYVi9QrzA91IEckE',
         description: 'refresh token'
     })
     @IsString()
@@ -53,8 +54,7 @@ export class OtpDto {
     declare refreshToken: string;
 
     @ApiProperty({
-        example:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlZDEyZTJkYi0zNDM0LTRlYjQtYmZlNC03OTM4NGFlNDViY2MiLCJtb2JpbGUiOiI3NDE2ODE1MTcxIiwicm9sZSI6InJlYWQiLCJsb2dpbldpdGgiOiJvdHAiLCJ1aWQiOiJlZDEyZTJkYi0zNDM0LTRlYjQtYmZlNC03OTM4NGFlNDViY2MiLCJpYXQiOjE3NDczMjM1ODcsImV4cCI6MTc0NzkyODM4N30.gn8PrprqjFoGK4qPT-yNNzv5q_1nYVi9QrzA91IEckE',
+        example: 'dfgsdfgdfsg.gn8PrprqjFoGK4qPT-yNNzv5q_1nYVi9QrzA91IEckE',
         description: 'Access token'
     })
     @IsString()

@@ -9,6 +9,8 @@ import { UserDto } from 'src/user/dto/user-dto';
 import { randomInt } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { PayloadType } from 'src/common/type/Payload';
+import { OtpDto } from './dto/auth-otp.dto';
+import { generateString } from 'src/common/fn/generateString';
 
 @Injectable()
 export class AuthService {
@@ -57,7 +59,7 @@ export class AuthService {
         return { accessToken, refreshToken };
     }
 
-    async requestOtp(dto: CreateOtpDto) {
+    async requestOtp(dto: CreateOtpDto): Promise<OtpDto> {
         const record = await this.otpModel.findOne({ where: { mobile: dto.mobile } });
         if (record) {
             if (record.expiresAt.getTime() > Date.now()) {
@@ -73,16 +75,19 @@ export class AuthService {
         // const code = Math.floor(1000 + Math.random() * 9000).toString();
         const code = randomInt(1000, 10000).toString(); // crypto-secure, still very fast
 
+        // Set expiry date for OTP
+        const expiresAt = new Date(Date.now() + 1 * 60 * 1000); // 1 min expiry
+
         // upsert an OTP record (new or overwrite previous)
         await this.otpModel.upsert({
             mobile: dto.mobile,
             code,
-            expiresAt: new Date(Date.now() + 1 * 60 * 1000), // 5 min expiry
+            expiresAt,
             isUsed: false
         });
 
         // TODO: integrate with SMS gateway to send `code` to `dto.mobile`
-        return code;
+        return { code: code, expiresAt: expiresAt } as OtpDto;
     }
 
     async validateOtp(dto: VerifyOtpDto): Promise<UserDto> {
@@ -109,6 +114,7 @@ export class AuthService {
         if (!user) {
             user = await this.userService.create({ mobile: dto.mobile, isActivate: true });
         }
+
         return user as UserDto;
     }
     verifyOtp(user: UserDto) {
@@ -117,8 +123,10 @@ export class AuthService {
         // 5) issue JWT
         // const payload: PayloadType = { sub: user.id, mobile: user.mobile, role: user.role };
         // const token = this.jwtService.sign(payload);
+        const passCode = generateString(10);
+
         const { accessToken, refreshToken } = this.generateTokens(user, 'otp', user.id);
-        return { accessToken, refreshToken };
+        return { accessToken, refreshToken, passCode };
     }
 
     async generateAccessToken(RefToken: string) {

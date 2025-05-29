@@ -2,7 +2,14 @@ import { Body, Controller, Post, UseGuards, Get, Request } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import {
+    ApiBadRequestResponse,
+    ApiBearerAuth,
+    ApiBody,
+    ApiCreatedResponse,
+    ApiOkResponse,
+    ApiOperation
+} from '@nestjs/swagger';
 import { ErrorResponseDto } from 'src/common/dto/error-response.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RequestType } from 'src/common/type/Request';
@@ -10,6 +17,7 @@ import { Request as ExpressRequest } from 'express';
 import { UserDto } from 'src/user/dto/user-dto';
 import { JwtAuthGuard } from 'src/auth-guard/guards/auth.guard';
 import { PassportJwtGuard } from 'src/auth-guard/guards/jwt.guard';
+import { OtpDto } from './dto/auth-otp.dto';
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
@@ -20,7 +28,7 @@ export class AuthController {
     @ApiOkResponse({})
     @ApiCreatedResponse({})
     @ApiBadRequestResponse({ description: 'Forbidden', type: ErrorResponseDto })
-    requestOtp(@Body() type: CreateOtpDto) {
+    requestOtp(@Body() type: CreateOtpDto): Promise<OtpDto> {
         return this.authService.requestOtp(type);
     }
 
@@ -32,7 +40,8 @@ export class AuthController {
     @ApiBadRequestResponse({ description: 'Forbidden', type: ErrorResponseDto })
     async verifyOtp(@Body() dto: VerifyOtpDto) {
         const user: UserDto = await this.authService.validateOtp(dto);
-        return this.authService.verifyOtp(user);
+        const token = this.authService.verifyOtp(user);
+        return { ...token, user };
     }
 
     @Post('/user/access-token')
