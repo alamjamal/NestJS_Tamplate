@@ -8,10 +8,9 @@ import { FormatErrorPipe } from './common/pipes/format-error.pipe';
 // import { CustomValidationPipe } from './common/pipes/validation.pipe';
 // import * as csurf from 'csurf';
 import * as cookieParser from 'cookie-parser';
-import { doubleCsrf } from 'csrf-csrf';
 import { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'crypto';
-
+import { doubleCsrfProtection, generateCsrfToken } from './options/csrfOption';
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
         logger: ['error', 'warn', 'log']
@@ -34,31 +33,10 @@ async function bootstrap() {
             });
         }
         next();
-        console.log(`Session middleware took ${Date.now() - start}ms`);
+        console.warn(`Session middleware took ${Date.now() - start}ms`);
     });
 
     // CSRF Protection
-    const { doubleCsrfProtection, invalidCsrfTokenError, generateCsrfToken } = doubleCsrf({
-        getSecret: (req: Request) => req?.secret || 'default-secret',
-        getSessionIdentifier: (req: Request) => {
-            // Use a unique identifier for the session, such as a user ID or session ID from cookies
-            // Fallback to a static string if not available (not recommended for production)
-            return req.cookies?.sessionId as string;
-        },
-        cookieName: '__Host-ps_csrf_token',
-        cookieOptions: {
-            sameSite: 'strict',
-            path: '/',
-            secure: true // Set to true if using HTTPS
-        },
-        getCsrfTokenFromRequest: (req: Request) => req.headers['x-csrf-token'],
-        errorConfig: {
-            statusCode: 403,
-            message: 'Invalid CSRF Token',
-            code: 'CSRF_TOKEN_INVALID'
-        },
-        ignoredMethods: ['GET', 'HEAD', 'OPTIONS'] // CSRF protection is not applied to these methods
-    });
 
     // Apply CSRF protection to all POST, PUT, PATCH, DELETE requests
     app.use(doubleCsrfProtection);
