@@ -1,8 +1,8 @@
 export const corsOptions = {
     origin: process.env.CORS_ORIGIN || '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
 
-    // credentials: true,
+    credentials: true // Important for CSRF + Cookies
     // allowedHeaders: 'Content-Type, Accept',
     // exposedHeaders: 'Content-Disposition',
 };

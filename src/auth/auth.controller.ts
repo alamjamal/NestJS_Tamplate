@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, Get, Request } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Get, Request, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
@@ -16,8 +16,10 @@ import { RequestType } from 'src/common/type/Request';
 import { Request as ExpressRequest } from 'express';
 import { UserDto } from 'src/user/dto/user-dto';
 import { JwtAuthGuard } from 'src/auth-guard/guards/auth.guard';
-import { PassportJwtGuard } from 'src/auth-guard/guards/jwt.guard';
+// import { PassportJwtGuard } from 'src/auth-guard/guards/jwt.guard';
 import { OtpDto } from './dto/auth-otp.dto';
+import { Response } from 'express';
+
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
@@ -38,10 +40,23 @@ export class AuthController {
     @ApiOkResponse({})
     @ApiCreatedResponse({})
     @ApiBadRequestResponse({ description: 'Forbidden', type: ErrorResponseDto })
-    async verifyOtp(@Body() dto: VerifyOtpDto) {
+    async verifyOtp(@Body() dto: VerifyOtpDto, @Res({ passthrough: true }) res: Response) {
         const user: UserDto = await this.authService.validateOtp(dto);
         const token = this.authService.verifyOtp(user);
-        return { ...token, user };
+        res.cookie('accessToken', token.accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // true in production
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60 * 24 // 1 day
+        });
+        res.cookie('refreshToken', token.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+        });
+
+        return { passCode: token.passCode, user };
     }
 
     @Post('/user/access-token')
