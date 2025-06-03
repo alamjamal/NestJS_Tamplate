@@ -8,9 +8,8 @@ import { FormatErrorPipe } from './common/pipes/format-error.pipe';
 // import { CustomValidationPipe } from './common/pipes/validation.pipe';
 // import * as csurf from 'csurf';
 import * as cookieParser from 'cookie-parser';
-import { NextFunction, Request, Response } from 'express';
-import { randomUUID } from 'crypto';
-import { doubleCsrfProtection, generateCsrfToken } from './options/csrfOption';
+import { Request, Response } from 'express';
+import { webCsrfCombinedMiddleware } from './common/middleware/webCsrf.middleware';
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
         logger: ['error', 'warn', 'log']
@@ -21,27 +20,7 @@ async function bootstrap() {
     app.enableShutdownHooks();
     // app.setGlobalPrefix('api/v1');
 
-    // Middleware to ensure every user has a unique sessionId cookie
-    app.use((req: Request, res: Response, next: NextFunction) => {
-        if (!req.cookies?.sessionId) {
-            res.cookie('sessionId', randomUUID(), {
-                httpOnly: true,
-                sameSite: 'strict',
-                secure: process.env.NODE_ENV === 'production',
-                path: '/'
-            });
-        }
-        next();
-    });
-
-    // CSRF Protection
-    app.use(doubleCsrfProtection);
-
-    // Endpoint to provide CSRF token to frontend
-    app.use('/csrf-token', (req: Request, res: Response) => {
-        const token = generateCsrfToken(req, res);
-        res.status(200).json({ csrfToken: token });
-    });
+    app.use(webCsrfCombinedMiddleware);
 
     app.useGlobalPipes(new FormatErrorPipe());
     app.useGlobalFilters(new HttpExceptionFilter());
