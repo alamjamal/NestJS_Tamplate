@@ -49,14 +49,8 @@ export class AuthController {
             sameSite: 'strict',
             maxAge: 1000 * 60 * 60 * 24 // 1 day
         });
-        res.cookie('refreshToken', token.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
-        });
 
-        return { passCode: token.passCode, user };
+        return { passCode: token.passCode, user, refreshToken: token.refreshToken };
     }
 
     @Post('/user/access-token')
@@ -65,8 +59,15 @@ export class AuthController {
     @ApiOkResponse({})
     @ApiCreatedResponse({})
     @ApiBadRequestResponse({ description: 'Forbidden', type: ErrorResponseDto })
-    getAccessToken(@Body() dto: RefreshTokenDto) {
-        return this.authService.generateAccessToken(dto.refreshToken);
+    async getAccessToken(@Body() dto: RefreshTokenDto, @Res({ passthrough: true }) res: Response) {
+        const token = await this.authService.generateAccessToken(dto.refreshToken);
+        res.cookie('accessToken', token.accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // true in production
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60 * 24 // 1 day
+        });
+        return { refreshToken: token.refreshToken };
     }
 
     @Post('/user/logout')
@@ -75,14 +76,14 @@ export class AuthController {
     @ApiOkResponse({})
     @ApiCreatedResponse({})
     @ApiBadRequestResponse({ description: 'Forbidden', type: ErrorResponseDto })
-    logOut(@Body() dto: RefreshTokenDto) {
-        return this.authService.logout(dto.refreshToken);
+    logOut(@Body() dto: RefreshTokenDto, @Res({ passthrough: true }) res: Response) {
+        return this.authService.logout(dto.refreshToken, res);
     }
 
     @UseGuards(JwtAuthGuard)
     // @UseGuards(PassportJwtGuard)
     @ApiBearerAuth()
-    @Get('/me')
+    @Get('/user/me')
     getCurrentUser(@Request() request: ExpressRequest) {
         return request.user as RequestType;
     }

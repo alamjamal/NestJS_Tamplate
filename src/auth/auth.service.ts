@@ -10,6 +10,7 @@ import { randomInt, randomBytes } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { PayloadType } from 'src/common/type/Payload';
 import { OtpDto } from './dto/auth-otp.dto';
+import { Response } from 'express';
 // import { generateString } from 'src/common/fn/generateString';
 
 @Injectable()
@@ -140,13 +141,19 @@ export class AuthService {
         return { accessToken, refreshToken };
     }
 
-    async logout(token: string) {
+    async logout(token: string, res: Response) {
         const payload = await this.verifyRefreshToken(token);
         const user = await this.userService.findOne(payload.sub);
         if (!user) {
             throw new BadRequestException('User not found');
         }
         // await this.otpService.blackListToken(user.id);
+        res.clearCookie('accessToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // true in production
+            sameSite: 'strict',
+            maxAge: 0 // immediately expire the cookie
+        });
         return { message: 'Logged out successfully' };
     }
 }
