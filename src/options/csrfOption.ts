@@ -7,11 +7,12 @@ export const { doubleCsrfProtection, generateCsrfToken, validateRequest } = doub
         // Fallback to a static string if not available (not recommended for production)
         return req.cookies?.sessionId as string;
     },
-    cookieName: '__Host-ps_csrf_token',
+    cookieName: 'csrf_token',
     cookieOptions: {
+        httpOnly: true,
         sameSite: 'strict',
-        path: '/',
-        secure: true // Set to true if using HTTPS
+        secure: process.env.NODE_ENV === 'production',
+        path: '/'
     },
     getCsrfTokenFromRequest: (req: Request) => req.headers['x-csrf-token'],
     errorConfig: {

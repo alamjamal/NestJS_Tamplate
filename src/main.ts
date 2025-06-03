@@ -23,7 +23,6 @@ async function bootstrap() {
 
     // Middleware to ensure every user has a unique sessionId cookie
     app.use((req: Request, res: Response, next: NextFunction) => {
-        const start = Date.now();
         if (!req.cookies?.sessionId) {
             res.cookie('sessionId', randomUUID(), {
                 httpOnly: true,
@@ -33,14 +32,12 @@ async function bootstrap() {
             });
         }
         next();
-        console.warn(`Session middleware took ${Date.now() - start}ms`);
     });
 
     // CSRF Protection
-
-    // Apply CSRF protection to all POST, PUT, PATCH, DELETE requests
     app.use(doubleCsrfProtection);
 
+    // Endpoint to provide CSRF token to frontend
     app.use('/csrf-token', (req: Request, res: Response) => {
         const token = generateCsrfToken(req, res);
         res.status(200).json({ csrfToken: token });
