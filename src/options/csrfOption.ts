@@ -14,7 +14,7 @@ export const { doubleCsrfProtection, generateCsrfToken, validateRequest } = doub
         secure: process.env.NODE_ENV === 'production',
         path: '/'
     },
-    getCsrfTokenFromRequest: (req: Request) => req.headers['x-csrf-token'],
+    getCsrfTokenFromRequest: (req: Request) => req.cookies['csrf_token'] as string,
     errorConfig: {
         statusCode: 403,
         message: 'Invalid CSRF Token',
