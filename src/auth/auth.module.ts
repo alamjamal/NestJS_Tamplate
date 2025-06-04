@@ -24,7 +24,7 @@ import { JwtStrategy } from 'src/auth-guard/strategies/jwt.strategy';
                 }
                 return {
                     secret,
-                    signOptions: { expiresIn: '1h' }
+                    signOptions: { expiresIn: '1d' }
                 };
             }
         }),

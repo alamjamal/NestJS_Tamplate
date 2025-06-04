@@ -36,7 +36,7 @@ async function bootstrap() {
 
 bootstrap()
     .then(() => {
-        console.log('Nest application started');
+        console.log('Nest application started: ', process.env.NODE_ENV);
     })
     .catch((err) => {
         console.error('Nest application failed to start', err);
