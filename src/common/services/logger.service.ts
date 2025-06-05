@@ -9,8 +9,32 @@ import {
     format,
     LoggerOptions as winstonLoggerOption
 } from 'winston';
+import { createStream } from 'rotating-file-stream';
+import * as Sentry from '@sentry/nestjs';
+import { logger as sentryLogger } from '@sentry/nestjs';
+import Transport from 'winston-transport';
+// const SentryWinstonTransport = Sentry.createSentryWinstonTransport(Transport);
 
-import DailyRotateFile = require('winston-daily-rotate-file');
+const logOptions = {
+    interval: '1d', // rotate daily
+    path: 'logs',
+    // filename: 'application-%DATE%.log', // log file name pattern
+    size: '50K', // maximum file size
+    maxFiles: 5 // maximum number of files to keep,
+};
+const logFormat = format.combine(
+    format.timestamp(),
+    format.printf(({ level, message, timestamp }) => `[${timestamp as string}] ${level}: ${message as string}`),
+    format.timestamp({
+        format: 'DD-MM-YYYY hh:mm:ss a', // Custom timestamp format,
+        alias: 'timestamp' // Alias for the timestamp field
+    }),
+    format.json(),
+    format.errors({ stack: true }), // Include stack trace for errors
+    format.colorize(), // Colorize the output for better readability
+    format.splat(), // Allow for string interpolation
+    format.metadata() // Include metadata in the log
+);
 
 @Injectable({
     scope: Scope.TRANSIENT
@@ -33,64 +57,35 @@ export class LoggerService<TLog extends ApplicationLogInterface> {
         if (this.logger) {
             return this.logger;
         }
-        // if (this.nodeEnv === NodeEnv.Development.toString() || this.nodeEnv === NodeEnv.Local.toString()) {
-        //     // Console logger for development
-        //     this.logger = new ConsoleLogger({
-        //         timestamp: true,
-        //         context: this.context,
-        //         logLevels: ['log', 'error', 'warn', 'debug']
-        //     }) as InternalLoggerType;
-        // } else {
-        //     this.logger = craeteWinstonLogger(LoggerService.getWinstonLoggerOptions(this.context));
-        // }
-        this.logger = craeteWinstonLogger(LoggerService.getWinstonLoggerOptions());
+        if (this.nodeEnv === NodeEnv.Development.toString() || this.nodeEnv === NodeEnv.Local.toString()) {
+            // Console logger for development
+            this.logger = new ConsoleLogger({
+                timestamp: true,
+                context: this.context,
+                logLevels: ['log', 'error', 'warn', 'debug']
+            }) as InternalLoggerType;
+        } else {
+            this.logger = craeteWinstonLogger({
+                format: logFormat,
+                transports: [
+                    new winstonTransports.Stream({
+                        stream: createStream('info.log', logOptions)
+                    })
+
+                    // new SentryWinstonTransport()
+                ]
+            });
+        }
 
         return this.logger;
     }
 
-    private static getWinstonLoggerOptions(): winstonLoggerOption {
-        const { combine, timestamp, errors, json, label, colorize } = format;
-
-        return {
-            transports: [
-                new winstonTransports.Console({
-                    level: 'info',
-                    handleExceptions: true,
-                    handleRejections: true,
-                    format: combine(
-                        colorize(),
-
-                        timestamp(),
-                        errors({ stack: true }),
-                        json()
-                    )
-                }),
-                new DailyRotateFile({
-                    level: 'info',
-                    filename: 'info-%DATE%.log',
-                    datePattern: 'YYYY-MM-DD',
-                    zippedArchive: false,
-                    maxSize: '20m',
-                    maxFiles: '30d',
-                    dirname: 'logs',
-                    format: combine(timestamp(), errors({ stack: true }), json())
-                }),
-                new DailyRotateFile({
-                    level: 'error',
-                    filename: 'error-%DATE%.log',
-                    datePattern: 'YYYY-MM-DD',
-                    zippedArchive: false,
-                    maxSize: '20m',
-                    maxFiles: '30d',
-                    dirname: 'logs',
-                    format: combine(timestamp(), errors({ stack: true }), json())
-                })
-            ]
-        };
-    }
     log(log: string | TLog, time?: number): void {
         const logger = this.getLogger();
         const context = this.getContext();
+        logger.log({ level: 'info', message: JSON.stringify(log), context, excutionTime: time });
+        Sentry.captureMessage(JSON.stringify(log), 'info');
+        sentryLogger.info(JSON.stringify(log), { context });
         // if (typeof log === 'string') {
         //     // logger.log(log, { context });
         //     logger.log({ level: 'info', message: log, context });
@@ -98,24 +93,15 @@ export class LoggerService<TLog extends ApplicationLogInterface> {
         //     logger.log({ level: 'info', message: JSON.stringify(log), context });
         //     console.log('i am in obj');
         // }
-        logger.log({ level: 'info', message: JSON.stringify(log), context, excutionTime: time });
     }
     error(log: string | TLog, stack?: string): void {
         const logger = this.getLogger();
-        const safeStack = typeof stack === 'string' ? stack : '';
-        if (typeof log === 'string') {
-            logger.error(log, safeStack);
-        } else {
-            logger.error(JSON.stringify(log), safeStack);
-        }
+        const context = this.getContext();
+        logger.error({ level: 'error', message: JSON.stringify(log), stack, context });
     }
     warn(log: string | TLog): void {
         const logger = this.getLogger();
-        const context = this.context || 'LoggerServiceWarn';
-        if (typeof log === 'string') {
-            logger.warn(log, context);
-        } else {
-            logger.warn(JSON.stringify(log));
-        }
+        const context = this.getContext();
+        logger.error({ level: 'error', message: JSON.stringify(log), context });
     }
 }

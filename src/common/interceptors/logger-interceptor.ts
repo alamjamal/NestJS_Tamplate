@@ -7,7 +7,6 @@ import { LogRequestType } from '../type/LogRequest';
 import { AppController } from 'src/app.controller';
 import DeviceDetector from 'node-device-detector';
 import { LoggerService } from '../services/logger.service';
-import { generateString } from '../fn/generateString';
 
 @Injectable()
 export class LoggerInterceptor implements NestInterceptor {
@@ -53,7 +52,9 @@ export class LoggerInterceptor implements NestInterceptor {
                 log.responseTime = request.benchmark.endTime - request.benchmark.startTime;
                 if (context.getClass() !== AppController) {
                     // console.log('logger interceptor', log);
-                    this.loggerService.log(log);
+                    setImmediate(() => {
+                        this.loggerService.log(log);
+                    });
                 }
             })
         );

@@ -9,6 +9,8 @@ import { LoggerService } from './common/services/logger.service';
 import { ApplicationLogInterface } from './common/interface/application.log.interface';
 import { CommonModule } from './common/common.module';
 import { NodeEnv } from './common/enums/NodeEnv';
+import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
+import { APP_FILTER } from '@nestjs/core';
 
 @Module({
     imports: [
@@ -16,6 +18,7 @@ import { NodeEnv } from './common/enums/NodeEnv';
             isGlobal: true,
             envFilePath: '.env'
         }),
+        SentryModule.forRoot(),
         {
             module: CommonModule,
             global: true
@@ -68,6 +71,6 @@ import { NodeEnv } from './common/enums/NodeEnv';
     ],
 
     controllers: [AppController],
-    providers: [AppService]
+    providers: [{ provide: APP_FILTER, useClass: SentryGlobalFilter }, AppService]
 })
 export class AppModule {}
