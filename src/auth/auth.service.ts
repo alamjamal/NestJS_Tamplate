@@ -134,7 +134,7 @@ export class AuthService {
         const payload = await this.verifyRefreshToken(RefToken);
         const user: CreateOtpDto = await this.userService.findOne(payload.sub);
         if (!user) {
-            throw new BadRequestException('User not found');
+            throw new BadRequestException('User not Found');
         }
         // const newPayload: PayloadType = { sub: user.id, mobile: user.mobile, role: user.role };
         const { accessToken, refreshToken } = this.generateTokens(user as UserDto, payload.loginWith, payload.uid);

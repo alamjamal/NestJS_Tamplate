@@ -5,13 +5,18 @@ import { User } from './entities/user.entity';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { UserDto } from './dto/user-dto';
+import { LoggerService } from 'src/common/services/logger.service';
+import { ApplicationLogInterface } from 'src/common/interface/application.log.interface';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectModel(User)
-        private readonly userModel: typeof User // Inject the User model
-    ) {}
+        private readonly userModel: typeof User, // Inject the User model
+        private readonly logger: LoggerService<ApplicationLogInterface> // Inject the logger service
+    ) {
+        this.logger.setContext(UserService.name);
+    }
     async create(createUserDto: Partial<CreateUserDto>): Promise<CreateUserDto> {
         const user = await this.userModel.findOne<User>({
             where: {
