@@ -20,6 +20,7 @@ export class LoggerInterceptor implements NestInterceptor {
         // const response = context.switchToHttp().getResponse<Response>();
         const excutionClass = context.getClass().name;
         const excutionMethod = context.getHandler().name;
+        const serviceName = context.getClass().name.replace('Controller', 'Service');
         // const requestId = request.headers['x-request-id'] || request.id || 'unknown-request-id';
 
         const log: ApplicationLogInterface = {
@@ -53,7 +54,7 @@ export class LoggerInterceptor implements NestInterceptor {
                 if (context.getClass() !== AppController) {
                     // console.log('logger interceptor', log);
                     setImmediate(() => {
-                        this.loggerService.log(log);
+                        this.loggerService.log(log, undefined, serviceName);
                     });
                 }
             })

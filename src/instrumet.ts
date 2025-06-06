@@ -6,6 +6,14 @@ Sentry.init({
 
     // Setting this option to true will send default PII data to Sentry.
     // For example, automatic IP address collection on events
+    integrations: [
+        Sentry.nestIntegration(),
+        Sentry.postgresIntegration(),
+        Sentry.onUnhandledRejectionIntegration(),
+        Sentry.onUncaughtExceptionIntegration(),
+        Sentry.consoleLoggingIntegration()
+    ],
+
     sendDefaultPii: true,
     _experiments: {
         enableLogs: true

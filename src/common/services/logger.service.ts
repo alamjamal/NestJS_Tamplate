@@ -45,6 +45,7 @@ export class LoggerService<TLog extends ApplicationLogInterface> {
     private logger: InternalLoggerType;
     constructor(readonly configService: ConfigService) {
         this.nodeEnv = this.configService.get<NodeEnv>('NODE_ENV') ?? NodeEnv.Development;
+        this.getLogger();
     }
 
     setContext(context: string): void {
@@ -80,28 +81,46 @@ export class LoggerService<TLog extends ApplicationLogInterface> {
         return this.logger;
     }
 
-    log(log: string | TLog, time?: number): void {
-        const logger = this.getLogger();
-        const context = this.getContext();
-        logger.log({ level: 'info', message: JSON.stringify(log), context, excutionTime: time });
-        Sentry.captureMessage(JSON.stringify(log), 'info');
-        sentryLogger.info(JSON.stringify(log), { context });
-        // if (typeof log === 'string') {
-        //     // logger.log(log, { context });
-        //     logger.log({ level: 'info', message: log, context });
-        // } else {
-        //     logger.log({ level: 'info', message: JSON.stringify(log), context });
-        //     console.log('i am in obj');
-        // }
+    log(log: string | TLog, message?: string, context?: string): void {
+        const ctx = context || this.context;
+        const msg = message ? message : typeof log === 'string' ? log : log.message;
+        setImmediate(() => {
+            this.logger.log({
+                level: 'info',
+                message: msg,
+                log: log,
+                ...{ ctx }
+            });
+            sentryLogger.info('info', { message: msg, log, ctx });
+        });
     }
-    error(log: string | TLog, stack?: string): void {
-        const logger = this.getLogger();
-        const context = this.getContext();
-        logger.error({ level: 'error', message: JSON.stringify(log), stack, context });
+    error(log: string | TLog, stack?: string | TLog, message?: string, context?: string): void {
+        const ctx = context || this.context;
+        const msg = message ? message : typeof log === 'string' ? log : log.message;
+
+        setImmediate(() => {
+            this.logger.error({
+                level: 'error',
+                log: log,
+                message: msg,
+                stack,
+                ...{ ctx }
+            });
+            sentryLogger.error('error', { log, ctx, stack });
+        });
     }
-    warn(log: string | TLog): void {
-        const logger = this.getLogger();
-        const context = this.getContext();
-        logger.error({ level: 'error', message: JSON.stringify(log), context });
+    warn(log: string | TLog, message?: string, context?: string): void {
+        const ctx = context || this.context;
+        const msg = message ? message : typeof log === 'string' ? log : log.message;
+
+        setImmediate(() => {
+            this.logger.warn({
+                level: 'warn',
+                message: msg,
+                log: log,
+                ...{ ctx }
+            });
+            sentryLogger.warn('warn', { message: msg, log, ctx });
+        });
     }
 }

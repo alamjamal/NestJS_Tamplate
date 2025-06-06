@@ -55,10 +55,9 @@ import { APP_FILTER } from '@nestjs/core';
                                 rejectUnauthorized: false
                             }
                         },
-                        logging: (msg) => {
+                        logging: (sql) => {
                             loggingService.setContext(SequelizeModule.name);
-                            loggingService.log(msg);
-                            // console.log(msg);
+                            loggingService.log(sql, `Excutong Query On SQL Model`);
                         }
                     };
                 }
