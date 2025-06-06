@@ -1,3 +1,4 @@
+import './instrumet';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { corsOptions } from './options/corsOptions';
@@ -15,7 +16,6 @@ import { INestApplication } from '@nestjs/common';
 import { LoggerService } from './common/services/logger.service';
 import { ApplicationLogInterface } from './common/interface/application.log.interface';
 import { LoggerInterceptor } from './common/interceptors/logger-interceptor';
-import './instrumet';
 async function setupLogger(app: INestApplication): Promise<void> {
     const logger: LoggerService<ApplicationLogInterface> = await app.resolve(LoggerService);
     const loggerInterceptor: LoggerInterceptor = await app.resolve(LoggerInterceptor);

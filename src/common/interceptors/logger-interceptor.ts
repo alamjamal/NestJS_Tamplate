@@ -5,12 +5,12 @@ import { tap } from 'rxjs/operators';
 import { ApplicationLogInterface } from '../interface/application.log.interface';
 import { LogRequestType } from '../type/LogRequest';
 import { AppController } from 'src/app.controller';
-import DeviceDetector from 'node-device-detector';
+import * as DeviceDetector from 'device-detector-js';
 import { LoggerService } from '../services/logger.service';
 
 @Injectable()
 export class LoggerInterceptor implements NestInterceptor {
-    // private readonly deviceDetector = new DeviceDetector();
+    private readonly deviceDetector = new DeviceDetector();
     constructor(private readonly loggerService: LoggerService<ApplicationLogInterface>) {}
     intercept(
         context: ExecutionContext,
@@ -42,7 +42,7 @@ export class LoggerInterceptor implements NestInterceptor {
         }
         if (request.headers['user-agent']) {
             log.clientDetails = {
-                // ...this.deviceDetector.detect(request.headers['user-agent']),
+                ...this.deviceDetector.parse(request.headers['user-agent']),
                 ip: request.headers['x-forwarded-for'] || request.ip
             };
         }

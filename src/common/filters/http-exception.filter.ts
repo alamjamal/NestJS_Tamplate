@@ -1,11 +1,13 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ErrorResponseDto } from '../dto/error-response.dto';
+import { SentryExceptionCaptured } from '@sentry/nestjs';
 // import { ValidationError } from 'class-validator';
 // import { NotFoundResponseDto } from '../dto /notfound-response.dto';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
+    @SentryExceptionCaptured()
     catch(exception: ErrorResponseDto, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
