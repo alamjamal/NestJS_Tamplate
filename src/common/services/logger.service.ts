@@ -26,7 +26,7 @@ const logFormat = format.combine(
     format.timestamp(),
     format.printf(({ level, message, timestamp }) => `[${timestamp as string}] ${level}: ${message as string}`),
     format.timestamp({
-        format: 'DD-MM-YYYY hh:mm:ss a', // Custom timestamp format,
+        format: 'DD-MM-YYYY hh:mm:ss ', // Custom timestamp format,
         alias: 'timestamp' // Alias for the timestamp field
     }),
     format.json(),
@@ -70,7 +70,10 @@ export class LoggerService<TLog extends ApplicationLogInterface> {
                 format: logFormat,
                 transports: [
                     new winstonTransports.Stream({
-                        stream: createStream('info.log', logOptions)
+                        stream: createStream(() => {
+                            const date = new Date().toISOString().slice(0, 10);
+                            return `info-${date}.log`;
+                        }, logOptions)
                     })
 
                     // new SentryWinstonTransport()
