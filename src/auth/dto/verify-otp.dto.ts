@@ -2,4 +2,4 @@
 import { PickType } from '@nestjs/swagger';
 import { OtpDto } from './auth-otp.dto';
 
-export class VerifyOtpDto extends PickType(OtpDto, ['mobile', 'code'] as const) {}
+export class VerifyOtpDto extends PickType(OtpDto, ['mobile', 'code', 'isRemember'] as const) {}

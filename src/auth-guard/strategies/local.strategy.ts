@@ -10,10 +10,11 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
             passwordField: 'code'
         });
     }
-    async validate(mobile: string, code: string) {
+    async validate(mobile: string, code: string, isRemember: boolean) {
         const user = await this.authService.validateOtp({
             mobile: mobile,
-            code: code
+            code: code,
+            isRemember: Boolean(isRemember)
         });
 
         return user;

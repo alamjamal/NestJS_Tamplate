@@ -1,6 +1,6 @@
 // src/otp/dto/otp.dto.ts
-import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsJWT, IsNotEmpty, IsString, Length, Matches } from 'class-validator';
+import { ApiIAmATeapotResponse, ApiProperty } from '@nestjs/swagger';
+import { IsBoolean, IsDate, IsJWT, IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 
 export class OtpDto {
     @ApiProperty({
@@ -27,6 +27,14 @@ export class OtpDto {
         message: 'OTP code must be Valid Number'
     })
     declare code: string;
+
+    @ApiProperty({
+        example: true,
+        description: 'provide isRemmber flag'
+    })
+    @IsNotEmpty()
+    @IsBoolean()
+    declare isRemember: boolean;
 
     @ApiProperty({
         type: String,

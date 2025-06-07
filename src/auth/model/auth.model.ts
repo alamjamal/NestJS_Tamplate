@@ -30,6 +30,9 @@ export class OTP extends Model {
     })
     declare code: string;
 
+    @Column({ type: DataType.BOOLEAN, defaultValue: false, allowNull: false })
+    declare isRemember: boolean;
+
     @Column({ type: DataType.DATE, allowNull: false, defaultValue: DataType.NOW })
     declare expiresAt: Date;
 

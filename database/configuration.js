@@ -21,3 +21,7 @@ module.exports = {
         }
     }
 }
+
+
+// npx sequelize-cli migration:generate --name add-isRemember-to-otp
+// npx sequelize-cli db:migrate
