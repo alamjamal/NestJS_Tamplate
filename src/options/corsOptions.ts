@@ -8,7 +8,10 @@ const allowedOrigins = [
     'https://app.instaxerox.in',
     'http://localhost:3000',
     'http://localhost:3001',
-    'http://localhost:3002'
+    'http://localhost:3002',
+    'http://192.168.1.14:3000/',
+    'http://192.168.1.3:3000/',
+    'http://192.168.0.2:3000/'
 ];
 
 export const corsOptions = {
