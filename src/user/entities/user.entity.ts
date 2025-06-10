@@ -74,6 +74,14 @@ export class User extends Model {
     })
     declare isVerified: boolean;
 
+
+    @Column({
+        type: DataType.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    })
+    declare isFirsTimeLogin: boolean;
+
     @Column({
         type: DataType.BOOLEAN,
         allowNull: false,

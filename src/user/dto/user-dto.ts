@@ -62,12 +62,21 @@ export class UserDto {
 
     @ApiProperty({
         example: true,
-        description: 'Verification status',
+        description: 'Verification Flag',
         required: false
     })
     @IsBoolean()
     @IsOptional()
     isVerified?: boolean;
+
+    @ApiProperty({
+        example: true,
+        description: 'First Time Login Flag',
+        required: false
+    })
+    @IsBoolean()
+    @IsOptional()
+    isFirsTimeLogin?: boolean;
 
     @ApiProperty({
         example: true,
