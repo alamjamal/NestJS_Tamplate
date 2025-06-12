@@ -35,6 +35,7 @@ export class UserService {
 
     async findAll(): Promise<CreateUserDto[]> {
         const result = await this.userModel.findAll<User>({});
+        this.logger.log(`Fetched ${result.length} users`, undefined, UserService.name);
         return result;
     }
 

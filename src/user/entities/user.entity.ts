@@ -80,7 +80,7 @@ export class User extends Model {
         allowNull: false,
         defaultValue: false
     })
-    declare isFirsTimeLogin: boolean;
+    declare isFirstTimeLogin: boolean;
 
     @Column({
         type: DataType.BOOLEAN,

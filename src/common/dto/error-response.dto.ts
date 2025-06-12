@@ -41,5 +41,5 @@ export class ErrorResponseDto {
         example: 'Detailed stack trace',
         description: 'Detailed stack trace'
     })
-    stack: string;
+    stack?: string;
 }

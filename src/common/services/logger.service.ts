@@ -12,8 +12,10 @@ import {
 import { createStream } from 'rotating-file-stream';
 import * as Sentry from '@sentry/nestjs';
 import { logger as sentryLogger } from '@sentry/nestjs';
-import Transport from 'winston-transport';
-// const SentryWinstonTransport = Sentry.createSentryWinstonTransport(Transport);
+import * as Transport from 'winston-transport';
+import { ErrorResponseDto } from '../dto/error-response.dto';
+import * as DailyRotateFile from 'winston-daily-rotate-file';
+const SentryWinstonTransport = Sentry.createSentryWinstonTransport(Transport);
 
 const logOptions = {
     interval: '1d', // rotate daily
@@ -43,9 +45,11 @@ export class LoggerService<TLog extends ApplicationLogInterface> {
     private readonly nodeEnv: string;
     private context: string;
     private logger: InternalLoggerType;
+    isProd: boolean;
     constructor(readonly configService: ConfigService) {
         this.nodeEnv = this.configService.get<NodeEnv>('NODE_ENV') ?? NodeEnv.Development;
         this.getLogger();
+        this.isProd = this.nodeEnv === NodeEnv.Production.toString();
     }
 
     setContext(context: string): void {
@@ -69,14 +73,22 @@ export class LoggerService<TLog extends ApplicationLogInterface> {
             this.logger = craeteWinstonLogger({
                 format: logFormat,
                 transports: [
-                    new winstonTransports.Stream({
-                        stream: createStream(() => {
-                            const date = new Date().toISOString().slice(0, 10);
-                            return `info-${date}.log`;
-                        }, logOptions)
+                    // new winstonTransports.Stream({
+                    //     stream: createStream((time, index) => {
+                    //         if (!time) return 'info.log';
+                    //         const date = new Date().toISOString().slice(0, 10);
+                    //         return `info-${date}-${index}.log`;
+                    //     }, logOptions)
+                    // }),
+                    // new SentryWinstonTransport(),
+                    new DailyRotateFile({
+                        filename: 'logs/app-%DATE%.log',
+                        datePattern: 'YYYY-MM-DD',
+                        zippedArchive: true,
+                        maxSize: '20m',
+                        maxFiles: '14d',
+                        level: 'info'
                     })
-
-                    // new SentryWinstonTransport()
                 ]
             });
         }
@@ -84,7 +96,7 @@ export class LoggerService<TLog extends ApplicationLogInterface> {
         return this.logger;
     }
 
-    log(log: string | TLog, message?: string, context?: string): void {
+    log(log: string | TLog | ErrorResponseDto, message?: string, context?: string): void {
         const ctx = context || this.context;
         const msg = message ? message : typeof log === 'string' ? log : log.message;
         setImmediate(() => {
@@ -94,10 +106,11 @@ export class LoggerService<TLog extends ApplicationLogInterface> {
                 log: log,
                 ...{ ctx }
             });
-            sentryLogger.info('info', { message: msg, log, ctx });
+
+            sentryLogger.info('log', { message: msg, log, ctx });
         });
     }
-    error(log: string | TLog, stack?: string | TLog, message?: string, context?: string): void {
+    error(log: string | TLog | ErrorResponseDto, stack?: string | TLog, message?: string, context?: string): void {
         const ctx = context || this.context;
         const msg = message ? message : typeof log === 'string' ? log : log.message;
 
@@ -109,6 +122,7 @@ export class LoggerService<TLog extends ApplicationLogInterface> {
                 stack,
                 ...{ ctx }
             });
+
             sentryLogger.error('error', { log, ctx, stack });
         });
     }
@@ -123,6 +137,7 @@ export class LoggerService<TLog extends ApplicationLogInterface> {
                 log: log,
                 ...{ ctx }
             });
+
             sentryLogger.warn('warn', { message: msg, log, ctx });
         });
     }

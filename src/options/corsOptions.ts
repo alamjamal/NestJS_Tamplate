@@ -6,13 +6,7 @@ const allowedOriginsForProd = [
     'https://stage.braindost.tech',
     'https://prod.braindost.tech',
     'https://app.braindost.tech',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:5173',
-    'http://localhost:4173',
-    'http://192.168.1.14:3000/',
-    'http://192.168.1.3:3000/',
-    'http://192.168.0.2:3000/'
+    'http://localhost:4173'
 ];
 const allowedOriginsForDev = [
     'http://localhost:3000',

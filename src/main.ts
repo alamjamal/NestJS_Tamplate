@@ -36,7 +36,9 @@ async function bootstrap() {
     app.use(webCsrfCombinedMiddleware);
 
     app.useGlobalPipes(new FormatErrorPipe());
-    app.useGlobalFilters(new HttpExceptionFilter());
+    // app.useGlobalFilters(new HttpExceptionFilter());
+    // main.ts
+    app.useGlobalFilters(app.get(HttpExceptionFilter));
     app.useGlobalInterceptors(new NotFoundInterceptor());
 
     setupSwagger(app);

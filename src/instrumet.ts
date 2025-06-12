@@ -1,9 +1,17 @@
 // Import with `const Sentry = require("@sentry/nestjs");` if you are using CJS
 import * as Sentry from '@sentry/nestjs';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
-
+import * as dotenv from 'dotenv';
+dotenv.config();
 Sentry.init({
-    dsn: 'https://8d99d150f560c12cd0f055a58f086cb2@o4508319618760704.ingest.de.sentry.io/4509448079212624',
+    dsn: process.env.NODE_ENV == 'production' ? process.env.SENTRY_DSN : '',
+    beforeSend(event) {
+        event.extra = {
+            ...event.extra,
+            localTimestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+        };
+        return event;
+    },
 
     // Setting this option to true will send default PII data to Sentry.
     // For example, automatic IP address collection on events
