@@ -1,5 +1,9 @@
 export enum UserRole {
-    USER_READ = 'read',
-    USER_WRITE = 'write',
-    USER_READ_WRITE = 'read_write'
+    USER_READ = 'user',
+    SUPER_ADMIN = 'super_admin',
+    ADMIN = 'admin',
+    HOME_OFFICE_USER = 'home_office_user',
+    DOCTOR = 'doctor',
+    STAFF = 'doctor_staff',
+    PATIENT = 'patient'
 }
